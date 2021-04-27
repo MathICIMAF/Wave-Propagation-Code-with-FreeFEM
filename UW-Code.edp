@@ -1,0 +1,361 @@
+/*
+WavePropagation Code
+
+Solution of the wave propagation problem in a plate from a pulse emitted at the left end of the plate.
+The displacement u = (ux, uy) of each point on the plate in time is calculated.
+u depending on the temporal variable t and the spatial variables (x, y).
+The problem is solved using FEM for the spatial variables (x, y) and the Houbolt method (2nd order finite differences)
+to approximate the second derivative of the displacement vector
+///////////////////////////////////////////////////////////////////////////////////////////
+Input:
+Tend defines the time interval [0, Tend] where the propagation of the pulse is studied.
+Material parameters: rho, P, E
+f0 - frequency
+Lx, Ly - plate dimensions.
+h- mesh size
+dt- delta_t step for temporal discretization.
+
+Output
+The program returns several files at the output:
+x.txt, y.txt
+ux.txt, uy.txt
+The files ux.txt and uy.txt contain the values ​​at the points (x, y) (which appear in the files x.txt and y.txt)
+of the functions ux and uy that define the displacement of each point on the plate for a t-FIXED time. 
+That time in the code is called t1. In addition there are 4 files uyP1.txt, uyP2.txt, uyP3.txt and uyP4.txt. 
+These files contain the values ​​of the second component of the displacement evaluated at 4 fixed points P1, P2, P3 and P4 
+for a sequence of values ​​of time ti = i * dt, that is, uy (P1, ti), uy (P2, ti ), uy (P3, ti) and uy (P4, ti).
+*///////////////////////////////////////////////////////////////////////////////
+
+real cpu=clock();
+real  t=0,       								      // Initial time
+rho,                 									 // Density
+P,                     									  //Poisson Ratio
+E;                    									  // Young's modulus
+
+cout<<"Density (Aluminum = 2700)"<<endl;
+cout<<"rho= ";
+cin>>rho;
+
+cout<<"Poisson Ratio (Aluminum = 0.334)"<<endl;
+cout<<"P= ";
+cin>>P;
+
+cout<<"Young's modulus (Aluminum = 7e10)"<<endl;
+cout<<"E= ";
+cin>>E;
+
+real mu=(E/(2*(1+P))), lambda=(E*P/((1+P)*(1-2*P)));   				  // Lamé's constants
+
+
+// Parameters for pulse g that depend on f0
+real amp,T0,T,alp,
+dt,    
+Tend,     
+f0;
+cout<<"Frequency f0=(1e5, 2e5, 3e5, 6e5, 7e5, 9e5, 11e5, 20e5, 30e5)"<<endl;
+cout<<"f0= ";
+cin>>f0;
+
+if (f0==1e5){
+amp=1e-3; T0=2.6e-6;
+T=2.3e-5; alp=2.5e-2;
+cout<<"Step Time (dt = 1e-7)"<<endl;
+cout<<"dt= ";
+cin>>dt;
+
+cout<<"End Time (Tend = 3.0e-5)"<<endl;
+cout<<"Tend= ";
+cin>>Tend;
+}
+
+if (f0==2e5){
+amp=1e-3; T0=2.6e-6;
+T=2.3e-5; alp=2.5e-2;
+cout<<"Step Time (dt = 1e-7)"<<endl;
+cout<<"dt= ";
+cin>>dt;
+
+cout<<"End Time (Tend = 3.0e-5)"<<endl;
+cout<<"Tend= ";
+cin>>Tend;
+}
+
+if (f0==3e5){
+amp=1e-3; T0=8.0e-6;
+T=1.0e-6; alp=8.0e-2;
+cout<<"Step Time (dt = 1e-7)"<<endl;
+cout<<"dt= ";
+cin>>dt;
+
+cout<<"End Time (Tend = 2.5e-5)"<<endl;
+cout<<"Tend= ";
+cin>>Tend;
+}
+
+if (f0==6e5){
+amp=1e-3; T0=4e-6;
+T=2e-6; alp=1.1;
+cout<<"Step Time (dt = 1e-8)"<<endl;
+cout<<"dt= ";
+cin>>dt;
+
+cout<<"End Time (Tend = 1.5e-5)"<<endl;
+cout<<"Tend= ";
+cin>>Tend;
+}
+
+if (f0==7e5){
+amp=1e-3; T0=3.e-6;
+T=2e-6; alp=1.5;
+cout<<"Step Time (dt = 1e-8)"<<endl;
+cout<<"dt= ";
+cin>>dt;
+
+cout<<"End Time (Tend = 1.5e-5)"<<endl;
+cout<<"Tend= ";
+cin>>Tend;
+}
+
+if (f0==9e5){
+amp=1e-3; T0=2.6e-6;
+T=2e-6; alp=2.0;
+cout<<"Step Time (dt = 1e-8)"<<endl;
+cout<<"dt= ";
+cin>>dt;
+
+cout<<"End Time (Tend = 1.5e-5)"<<endl;
+cout<<"Tend= ";
+cin>>Tend;
+}
+
+if (f0==11e5){
+amp=1e-3; T0=2.3e-6;
+T=2e-6; alp=3.2;
+cout<<"Step Time (dt = 1e-8)"<<endl;
+cout<<"dt= ";
+cin>>dt;
+
+cout<<"End Time (Tend = 1.2e-5)"<<endl;
+cout<<"Tend= ";
+cin>>Tend;
+}
+
+if (f0==20e5){
+amp=1e-3; T0=1.0e-6;
+T=2e-6; alp=10;
+cout<<"Step Time (dt = 1e-8)"<<endl;
+cout<<"dt= ";
+cin>>dt;
+
+cout<<"End Time (Tend = 1.0e-5)"<<endl;
+cout<<"Tend= ";
+cin>>Tend;
+}
+
+if (f0==30e5){
+amp=1e-3;T0=1e-6;
+T=2.5e-6;alp=45;
+cout<<"Step Time (dt = 1e-8)"<<endl;
+cout<<"dt= ";
+cin>>dt;
+
+cout<<"End Time (Tend = 1.0e-5)"<<endl;
+cout<<"Tend= ";
+cin>>Tend;
+}
+
+real g;
+
+cout<<"Dt= "<<dt<<endl;        						
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+real Ly, Lx, h;
+	
+	cout<<"Plate Dimensions (Ly = 1e-3; Lx = 5e-2)"<<endl;
+	cout<<"Ly= ";
+	cin>>Ly;
+	cout<<"Lx= ";
+	cin>>Lx;
+	cout<<"Mesh Size (h >= 1e-3)"<<endl;
+	cout<<"h= ";
+	cin>>h;
+	
+	
+real ny = sqrt(2)*Ly/h, 
+	 nx=(ny*Lx)/Ly;      
+	 cout<<"nx= "<<nx<<"; ny= "<<ny<<endl;
+mesh Sh=square(nx,ny,[Lx*x,Ly*y]); 								// Generate the mesh
+
+plot(Sh, wait=1);					
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+macro u [u1,u2]       										 // Solution u
+macro up [up1,up2]     										// Last step u_(i-1)
+macro upp [upp1,upp2]   									  // Last step u_(i-2)
+macro uppp [uppp1,uppp2]   									  // Last step u_(i-3)
+macro v [v1,v2]     										// Test function v
+macro sigma [(lambda*(dx(u1)+dy(u2))+2*mu*dx(u1)),(mu*(dy(u1)+dx(u2))),(lambda*(dx(u1)+dy(u2))+2*mu*dy(u2))] 	// elementos de la matriz sigma (stress)
+
+//// Define the problem ////////////////////////////////////////////////////////////
+fespace Vh(Sh,[P2,P2]);  									//Build the solutions space
+int ng = Vh.ndof;											//Number of Degrees of Freedom
+cout << "Degree of freedom = "<< ng <<endl;					
+fespace Ph(Sh,P2);
+Ph h1 = hTriangle;			
+cout << "size = "<< h1[].max <<endl;						
+Vh 	u, v, upp=[0,0],up=[0,0],uppp=[0,0];  						
+ 
+//Variational Formulation a(u,v)-F(v)=0
+problem FormVar(u,v )=
+int2d(Sh)(2*rho*(u')*v +(dt^2)*(sigma[0]*dx(v[0])+ sigma[1]*(dy(v[0])+dx(v[1]))+ sigma[2]*dy(v[1]))) 	
+-int2d(Sh)(rho*(5*(up')*v - 4*(upp')*v + (uppp')*v))		
++on(4,u1=0,u2=g); 											
+
+
+
+problem Estacionario(u,v )=
+		int2d(Sh)(rho*(u')*v+(dt^2)*(sigma[0]*dx(v[0])+ sigma[1]*(dy(v[0])+dx(v[1]))+ sigma[2]*dy(v[1])))
+		-int2d(Sh)(rho*(2*(up')*v-(upp')*v))
+		+on(4,u1=0,u2=g);  					
+
+//// Save solution //////////////////////////////////////////////////////////////
+
+// Output values for the calculation of the phase velocity
+ofstream f("uyP1.txt");
+ofstream ff("uyP2.txt");
+ofstream fff("uyP3.txt");
+ofstream ffff("uP4.txt");
+
+// Output values for the error calculation
+ofstream fu1("ux.txt");
+ofstream fu2("uy.txt");
+ofstream fy("y.txt");
+ofstream fx("x.txt");
+
+real n=0, j, m=50, mx=50,
+	 t1=0.699e-5;								// Time set to calculate the error
+
+real s1=5;
+real[int] s;
+
+// Gaussian squares values
+if(s1==1){
+ s = [0];
+}
+if(s1==2){
+ s = [-0.577350269189626,0.577350269189626];
+}
+if(s1==3){
+ s = [-0.774596669241000,0,0.774596669241000];
+}
+if(s1==4){
+ s = [-0.861136311594053,-0.339981043584856,0.339981043584856,0.861136311594053];
+}
+if(s1==5){
+ s = [-0.906179845938664,-0.538469310105683,0,0.538469310105683,0.906179845938664];
+}
+
+int i=0;
+ // Cycle in time with size dt
+ for(real t=0;t<=Tend;t+=dt){
+
+	g=amp*sin(2*pi*f0*t)*exp(-alp*((t-T0)^2)/T^2);				// Function that describes the pulse
+	
+	if(i<1){
+		Estacionario;							
+	///////////////////////////////////////////////////////////////////////////////////////////////
+		f<<u2(0.01,Ly)<<endl;               
+		ff<<u2(0.013,Ly)<<endl;            
+		fff<<u2(0.016,Ly)<<endl;          
+		ffff<<u2(0.019,Ly)<<endl;         
+	////////////////////////////////////////////////////////////////////////////////////////////////
+		upp=up;													// change the values of u_(i-2)
+		up=u;													// change the values of u_(i-1)
+		i++;
+	}else{
+
+	FormVar;							// Call the Variational Formulation and solve it, returning the values of u = [u1, u2]
+
+	
+///////////////////////////////////////////////////////////////////////////////////////////////
+	f<<u2(0.01,Ly)<<endl;               
+	ff<<u2(0.013,Ly)<<endl;            
+	fff<<u2(0.016,Ly)<<endl;          
+	ffff<<u2(0.019,Ly)<<endl;           
+////////////////////////////////////////////////////////////////////////////////////////////////
+  
+real delta=1e7; 											
+real minT0= checkmovemesh(Sh,[x,y]); 						
+while(1) 													
+{
+real minT=checkmovemesh(Sh,[x + delta*u1, y + delta*u2]); 	
+if ( minT0/1.5<minT) break ; 								
+delta/=1.5;
+}
+
+mesh Th=movemesh(Sh,[x+delta*u1,y+delta*u2]);  				
+
+////////////////////////////////////////////////////////////////////////////////////////////
+fespace Wh(Th,P2);
+Wh M;
+
+M=abs(u2); 
+
+ 
+	if(abs(t-t1)<dt & n!=1){
+		n = 1;
+		real[int] yy(m*s1);
+		real a, b, xmin, xmax;
+		xmin=0.91e-2; xmax=1.08e-2;  		// [xmin, xmax] interval where the error is calculated
+
+
+	//************** Eje X *****************************************************************//
+		for (int jx=0;jx<mx;jx+=1){
+			real ax=xmin + (xmax-xmin)*jx/mx, bx=xmin + (xmax-xmin)*(jx+1)/mx;
+			for (int jjx=0;jjx<s1;jjx+=1){
+				real xx1=((bx-ax)*s[jjx]/2)+ (bx+ax)/2;
+				fx<<xx1<<endl;				// Save the values of x
+
+	//************** Eje Y ***********************************************************//
+				int k=0;
+				for (j=0;j<m;j+=1){
+					if (jjx==0 && jx==0){ 
+						a=Ly*j/m;
+						b=Ly*(j+1)/m; 	
+					}
+					for (int jj=0;jj<s1;jj+=1){
+
+//*********************************************************//
+
+						if (jjx==0 && jx==0){
+							yy[k]=((b-a)*s[jj]/2)+ (b+a)/2;   
+							fy<<yy[k]<<endl;   				// Save the values of y
+						}
+
+//*********************************************************//
+
+						fu2<<u2(xx1,yy[k])<<endl;              // Save the solution u_y(x, y) for the instant of time t1
+
+						fu1<<u1(xx1,yy[k])<<endl;              // Save the solution u_x (x, y) for the instant of time t1
+						k=k+1;
+					}
+				}
+			}
+		}
+	}
+
+
+ 
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+	plot(Th,M,nbiso=30,value=1,fill=1,wait=0,cmm="Elasticidad de una Placa"+"; t="+t+"; Delta="+delta);
+	///// // change the initial values ////////////////////////////////////////////////////////////
+	uppp=upp;
+	upp=up;
+	up=u;
+	}
+}
+cout << " CPU time = " << clock()-cpu << endl;
