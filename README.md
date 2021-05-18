@@ -10,21 +10,10 @@ We study the ultrasonic wave propagation problem, it is assumed symmetry with re
 
 **WavePropagation Code** has been tested with FreeFem++ 3.56 and above and should run on most personal laptops and desktop machines.
 
-## Inputs
+## Input
 
-Tend defines the time interval [0, Tend] where the propagation of the pulse is studied.
 
-Material parameters: rho, P, E
-
-f0 – frequency, The frequency values to choose are the following:
-
-![](/images/Imagen2.png)
-
-Lx, Ly - plate dimensions.
-
-h- mesh size (>=1e-3)
-
-dt- delta_t step for temporal discretization.
+**f0** - frequency (Hz). Use a frequency value in the interval [1 , 30]x10^5 Hz.
 
 
 
