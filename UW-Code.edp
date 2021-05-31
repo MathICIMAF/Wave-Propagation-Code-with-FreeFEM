@@ -3,9 +3,9 @@ WavePropagation Code
 
 Solution of the wave propagation problem in a aluminum plate from a pulse emitted at the left end of the plate.
 The displacement u = (ux, uy) of each point on the plate in time is calculated.
-u depending on the temporal variable t and the spatial variables (x, y).
+u depends on the temporal variable t and the spatial variables (x, y).
 The problem is solved using FEM for the spatial variables (x, y) and the Houbolt method (2nd order finite differences)
-to approximate the second derivative of the displacement vector
+to approximate the second derivative of the displacement vector  u with respect to time.
 
 h- mesh size (m).
 
@@ -14,12 +14,7 @@ Input:
 f0 - frequency (Hz). Use a frequency value in the interval [1 , 30]x10^5 Hz.  
 
 Output
-The program returns several files at the output:
-x.txt, y.txt
-ux.txt, uy.txt
-The files ux.txt and uy.txt contain the values ​​at the points (x, y) (which appear in the files x.txt and y.txt)
-of the functions ux and uy that define the displacement of each point on the plate for a t-FIXED time. 
-That time in the code is called t1. In addition there are 4 files uyP1.txt, uyP2.txt, uyP3.txt and uyP4.txt. 
+The program returns 4 files uyP1.txt, uyP2.txt, uyP3.txt and uyP4.txt. 
 These files contain the values ​​of the second component of the displacement evaluated at 4 fixed points P1, P2, P3 and P4 
 for a sequence of values ​​of time ti = i * dt, that is, uy(P1, ti), uy(P2, ti ), uy(P3, ti) and uy(P4, ti).
 *///////////////////////////////////////////////////////////////////////////////
@@ -29,23 +24,21 @@ cout<<"WavePropagation Code"<<endl;
 cout<<endl;
 cout<<"Solution of the wave propagation problem in a aluminum plate from a pulse emitted at the left end of the plate."<<endl;
 cout<<"The displacement u = (ux, uy) of each point on the plate in time is calculated."<<endl;
-cout<<"u depending on the temporal variable t and the spatial variables (x, y)."<<endl;
-cout<<"The problem is solved using FEM for the spatial variables (x, y) and the Houbolt method (2nd order finite differences) to approximate the second derivative of the displacement vector."<<endl;
+cout<<"u depends on the temporal variable t and the spatial variables (x, y)."<<endl;
+cout<<"The problem is solved using FEM for the spatial variables (x, y) and the Houbolt method (2nd order finite differences) to approximate the second derivative of the displacement vector u with respect to time."<<endl;
 cout<<endl;
 cout<<"Input:"<<endl;
 cout<<"f0 - frequency (Hz). Use a frequency value in the interval [1 , 30]x10^5 Hz."<<endl;
 cout<<endl;
 cout<<"Output"<<endl;
-cout<<"The program returns several files at the output:"<<endl;
-cout<<"x.txt, y.txt"<<endl;
-cout<<"ux.txt, uy.txt"<<endl;
-cout<<"The files ux.txt and uy.txt contain the values at the points (x, y) (which appear in the files x.txt and y.txt)"<<endl;
-cout<<"of the functions ux and uy that define the displacement of each point on the plate for a t-FIXED time."<<endl;
-cout<<"That time in the code is called t1. In addition there are 4 files uyP1.txt, uyP2.txt, uyP3.txt and uyP4.txt."<<endl;
+cout<<"The program returns 4 files uyP1.txt, uyP2.txt, uyP3.txt and uyP4.txt."<<endl;
 cout<<"These files contain the values of the second component of the displacement evaluated at 4 fixed points P1, P2, P3";
-cout<<"and P4 for a sequence of values of time ti = i * dt, that is, uy(P1, ti), uy(P2, ti ), uy(P3, ti) and uy(P4, ti)."<<endl;
+cout<<" and P4 for a sequence of values of time ti = i * dt, that is, uy(P1, ti), uy(P2, ti ), uy(P3, ti) and uy(P4, ti)."<<endl;
 cout<<endl;
+cout<<"Example:"<<endl;
+cout<<"To enter the frequency 3x10^5 Hz, write 3e5 in the line where appear 'f0='."<<endl;
 cout<<endl;
+
 
 real cpu=clock();
 real  t=0,       								      // Initial time
@@ -64,7 +57,7 @@ Tend,
 f0=0;
 while(f0<1e5 || f0>30e5){
 
-cout<<"Choose a frequency f0 in the interval [1 , 30]x10^5 Hz"<<endl;
+cout<<"Choose a frequency f0 in the interval [1e5 , 30e5] Hz"<<endl;
 cout<<"f0= ";
 cin>>f0;
 
@@ -72,7 +65,7 @@ cin>>f0;
 
 
 
-real delta; 	
+real aumento; 	
 
  // dt- delta_t (seg) step for temporal discretization.
  if(f0>3e5){
@@ -82,21 +75,33 @@ real delta;
  }
  
  
- if(f0>=1e5&&f0<=2e5){
-	 Tend=5.5e-5;
-	 delta=1.3;
- }
- if(f0>2e5&&f0<=3e5){
+ if(f0>=1e5&&f0<1.5e5){
 	 Tend=3.5e-5;
-	 delta=1.3;
+	 aumento=1.3;
  }
- if(f0>3e5&&f0<=9e5){
-	 Tend=1.5e-5;	
-	 delta=0.4;
+ if(f0>=1.5e5&&f0<2e5){
+	 Tend=3.0e-5;
+	 aumento=1.3;
  }
- if(f0>9e5){
+ if(f0>=2e5&&f0<3e5){
+	 Tend=2.3e-5;
+	 aumento=1.3;
+ }
+ if(f0>=3e5&&f0<6e5){
+	 Tend=1.8e-5;	
+	 aumento=0.4;
+ }
+ if(f0>=6e5&&f0<9e5){
+	 Tend=1.3e-5;	
+	 aumento=0.4;
+ }
+ if(f0>=9e5&&f0<20e5){
 	 Tend=1.2e-5;
-	 delta=0.3;
+	 aumento=0.2;
+ }
+ if(f0>=20e5&&f0<=30e5){
+	 Tend=0.8e-5;
+	 aumento=0.2;
  }
  
  real g;
@@ -109,7 +114,7 @@ real Ly=0.001, Lx=0.05;				// Plate dimensions (m).
 
 	
 	
-real ny; 
+int ny; 
 
 if(f0>6e5){
 	ny=15;
@@ -118,7 +123,7 @@ if(f0>6e5){
 }
 	
 
-real nx=(ny*Lx)/Ly;      	 
+int nx=(ny*Lx)/Ly;      	 
 mesh Sh=square(nx,ny,[Lx*x,Ly*y]); 								// Generate the mesh
 
 // plot(Sh, wait=1);		//If you want see the mesh uncomment
@@ -134,182 +139,182 @@ macro sigma [(lambda*(dx(u1)+dy(u2))+2*mu*dx(u1)),(mu*(dy(u1)+dx(u2))),(lambda*(
 
 //// Define the problem ////////////////////////////////////////////////////////////
 fespace Vh(Sh,[P2,P2]);  									//Build the solutions space
+Vh [h1,h2] = [hTriangle,hTriangle] ;						//Mesh size
 int ng = Vh.ndof;											//Number of Degrees of Freedom
 cout << "Degree of freedom = "<< ng <<endl;					
-fespace Ph(Sh,P2);
-Ph h1 = hTriangle;			
 cout << "size = "<< h1[].max <<endl;						
-Vh 	u, v, upp=[0,0],up=[0,0],uppp=[0,0];  						
+Vh 	u, v, upp=[0,0],up=[0,0],uppp=[0,0];   						
  
 //Variational Formulation a(u,v)-F(v)=0
-problem FormVar(u,v )=
-int2d(Sh)(2*rho*(u')*v +(dt^2)*(sigma[0]*dx(v[0])+ sigma[1]*(dy(v[0])+dx(v[1]))+ sigma[2]*dy(v[1]))) 	
--int2d(Sh)(rho*(5*(up')*v - 4*(upp')*v + (uppp')*v))		
-+on(4,u1=0,u2=g); 											
+//This formulation uses central difference formula to approximate the second derivative of the displacement with respect to time.
+varf a1(u,v)= int2d(Sh)( rho*(u')*v +(dt^2)*(sigma[0]*dx(v[0])+ sigma[1]*(dy(v[0])+dx(v[1]))+ sigma[2]*dy(v[1])) )
++on(4,u1=0,u2=g);//
+
+varf b11 (up,v) = int2d(Sh)(rho*(2*(up')*v));  // ui-1
+varf b21 (upp,v) = int2d(Sh)(-1*rho*(upp')*v);  // ui-2 
+
+matrix A1=a1(Vh,Vh,solver=Cholesky,factorize=1,tgv=1);
+matrix B11 = b11(Vh,Vh,tgv=1);
+matrix B21 = b21(Vh,Vh,tgv=1);
+
+//This formulation uses Houbolt difference scheme to approximate the second derivative of the displacement with respect to time.
+varf a(u,v)= int2d(Sh)( 2*rho*(u')*v +(dt^2)*(sigma[0]*dx(v[0])+ sigma[1]*(dy(v[0])+dx(v[1]))+ sigma[2]*dy(v[1])) )
++on(4,u1=0,u2=g);//
+
+varf b1 (up,v) = int2d(Sh)(rho*(5*(up')*v));  // ui-1
+varf b2 (upp,v) = int2d(Sh)(-4*rho*(upp')*v);  // ui-2 
+varf m(uppp,v)= int2d(Sh)(rho*(uppp')*v ); //ui-3
+varf bcl(u,v)=on(4,u1=0,u2=g); 
+
+matrix B1 = b1(Vh,Vh,tgv=1);
+matrix B2 = b2(Vh,Vh,tgv=1);
+matrix M = m(Vh,Vh,tgv=1);
+
+real[int] sol(Vh.ndof),solp(Vh.ndof),solpp(Vh.ndof),solppp(Vh.ndof);
+solppp=0; solp=0; solpp=0; 
 
 
+matrix A=a(Vh,Vh,solver=Cholesky,factorize=1,tgv=1);
+ 
 
-problem Estacionario(u,v )=
-		int2d(Sh)(rho*(u')*v+(dt^2)*(sigma[0]*dx(v[0])+ sigma[1]*(dy(v[0])+dx(v[1]))+ sigma[2]*dy(v[1])))
-		-int2d(Sh)(rho*(2*(up')*v-(upp')*v))
-		+on(4,u1=0,u2=g);  					
-
+		
 //// Save solution //////////////////////////////////////////////////////////////
-
 // Output values for the calculation of the phase velocity
 ofstream f("uyP1.txt");
 ofstream ff("uyP2.txt");
 ofstream fff("uyP3.txt");
 ofstream ffff("uyP4.txt");
+////////////////////////////////////////////////////////////////////////////////////
 
-// Output values for the error calculation
-ofstream fu1("ux.txt");
-ofstream fu2("uy.txt");
-ofstream fy("y.txt");
-ofstream fx("x.txt");
+int  dim=(Tend/dt), div, dim1;
 
-real n=0, j, m=50, mx=50, dim=(Tend/dt),
-	 t1=0.699e-5;								// Time set to calculate the error
-
-
+if(dt==1e-7){		
+		div=10;			
+	}else{		
+		div=100;		
+	}
+dim1=dim/div;
 real[int] xx(dim),uyp1(dim),uyp2(dim),uyp3(dim),uyp4(dim);
-real s1=5;
-real[int] s;
+real[int,int] uu1(Vh.ndof,dim1), uu2(Vh.ndof,dim1), sqt(Vh.ndof,dim1);
 
-// Gaussian squares values
-if(s1==1){
- s = [0];
-}
-if(s1==2){
- s = [-0.577350269189626,0.577350269189626];
-}
-if(s1==3){
- s = [-0.774596669241000,0,0.774596669241000];
-}
-if(s1==4){
- s = [-0.861136311594053,-0.339981043584856,0.339981043584856,0.861136311594053];
-}
-if(s1==5){
- s = [-0.906179845938664,-0.538469310105683,0,0.538469310105683,0.906179845938664];
-}
+ real cont=dim*1.e-2, cont1=cont; int j=0, k=0;
+ 
+ // cout<<"dim= "<<dim<<", cont= "<<cont<<endl;
+ cout<<"Compute: "<<endl;
 
-
-int i=0;
  // Cycle in time with size dt
- for(real t=0;t<=Tend;t+=dt){
+ for(int i=0;i<dim;i++){
+
+	if(i>=cont1){
+		cout<<"\r";
+		cout<<"\t"<<k++<<"%";
+		cont1+=cont;//k++;		
+	}
 	
 	xx[i]=t;
 		
+	// Function that describes the pulse	
 	if(t<=(5/f0)){
-		g=amp*sin(2*pi*f0*t)*exp(-1*(f0*t-2.5)^2);				// Function that describes the pulse
+		g=amp*sin(2*pi*f0*t)*exp(-1*(f0*t-2.5)^2);				
 	}else{
 		g=0;
 	}
 	
 	if(i<1){
-		Estacionario;
-			
-	///////////////////////////////////////////////////////////////////////////////////////////////
-		uyp1[i]=u2(0.01,Ly);uyp2[i]=u2(0.013,Ly);uyp3[i]=u2(0.016,Ly);uyp4[i]=u2(0.019,Ly);
+//Solve the System of Linear Equations  corresponding to FEM approximation for time t=t1 to obtain u(t1)=[u1(t1),u2(t1)].
+		
+		real[int] BC = bcl(0,Vh,tgv=1) ,b(Vh.ndof);
+		solpp=solp; solp=sol;							// change the initial values
+		b=B11*solp; b+= B21*solpp; b+=BC;
+
+		sol=A1^-1*b;
+
+		u1[]=sol; u1[]=u1[]; u2[]= u2[];
+		
+	}else{
+
+//Solve the System of Linear Equations corresponding to FEM approximation for time t=ti to obtain u(ti)=[u1(ti),u2(ti)].
+	
+	real[int] BC = bcl(0,Vh,tgv=1) ,b(Vh.ndof);
+	solppp= solpp; solpp=solp; solp=sol;					// change the initial values
+	b=B1*solp; b+= B2*solpp; b+=M*solppp; b+=BC;
+
+	sol=A^-1*b;
+
+	u1[]=sol; u1[]=u1[]; u2[]= u2[];
+	        
+////////////////////////////////////////////////////////////////////////////////////////////////
+	} 
+	
+	
+	////// Save the values to compute the phase velocity  //////////////////////////////////////////////////////////////
+		uyp1[i]=u2(0.01,Ly)+0.0075;uyp2[i]=u2(0.013,Ly)+0.005;uyp3[i]=u2(0.016,Ly)+0.0025;uyp4[i]=u2(0.019,Ly);
 		f<<u2(0.01,Ly)<<endl;               
 		ff<<u2(0.013,Ly)<<endl;            
 		fff<<u2(0.016,Ly)<<endl;          
-		ffff<<u2(0.019,Ly)<<endl;         
+		ffff<<u2(0.019,Ly)<<endl;		
+		
 	////////////////////////////////////////////////////////////////////////////////////////////////
-		upp=up;													// change the values of u_(i-2)
-		up=u;													// change the values of u_(i-1)
-		i++;
-	}else{
-
-	FormVar;							// Call the Variational Formulation and solve it, returning the values of u = [u1, u2]
-
 	
-///////////////////////////////////////////////////////////////////////////////////////////////
-	uyp1[i]=u2(0.01,Ly);uyp2[i]=u2(0.013,Ly);uyp3[i]=u2(0.016,Ly);uyp4[i]=u2(0.019,Ly);
-	f<<u2(0.01,Ly)<<endl;               
-	ff<<u2(0.013,Ly)<<endl;            
-	fff<<u2(0.016,Ly)<<endl;          
-	ffff<<u2(0.019,Ly)<<endl;           
-////////////////////////////////////////////////////////////////////////////////////////////////
-  
-/* delta=1e7; 											
- real minT0= checkmovemesh(Sh,[x,y]); 						
-while(1) 													
-{
-real minT=checkmovemesh(Sh,[x + delta*u1, y + delta*u2]); 	
-if ( minT0/1.5<minT) break ; 								
-delta/=1.5;
- } */
- 
-mesh Th=movemesh(Sh,[x+delta*u1,y+delta*u2]);  				
+
+	if(i%div==0){
+		uu1(:,j)=u1[]; uu2(:,j)=u2[]; sqt(:,j)=sqrt(u1^2+u2^2);		
+		j++;
+	}
+	
+	t+=dt;
+	
+}
+while(k<=100){
+	cout<<"\r";
+	cout<<"\t"<<k++<<"%";
+	// k++;
+}
+cout<<endl;
+// cout<<"dim1= "<<dim1<<endl;
+
+real[int] colorhsv=[ // color hsv model
+0.3, 1, 1, // green
+0.4, 1, 1, // light green
+0.5, 1, 1, // light blue
+0.6, 1, 1, // blue
+0.7, 1, 1, // magenta
+0.8,1 , 1, //light magenta
+0.9, 1, 1, // light red
+ 1, 1, 1 // red
+];
+
+real minimo, maximo, inc;
+minimo=sqt.min; maximo=sqt.max;
+maximo=1e-3;
+// cout<<"min= "<<minimo<<", max= "<<maximo<<endl;
+real[int] viso(31);
+inc=(maximo-minimo)/30;
+viso[0]=minimo;
+for (int i=1;i<viso.n;i++){
+viso[i]=viso[i-1]+inc;
+}
+
+
+for(j=1; j<dim1; j++){
+	u1[]=uu1(:,j); u2[]=uu2(:,j);
+	 mesh Th=movemesh(Sh,[x+aumento*u1,y+aumento*u2]);  				
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-fespace Wh(Th,P2);
-Wh M;
-
-M=u2;
- 
-	if(abs(t-t1)<dt & n!=1){
-		n = 1;
-		real[int] yy(m*s1);
-		real a, b, xmin, xmax;
-		xmin=0.91e-2; xmax=1.08e-2;  		// [xmin, xmax] interval where the error is calculated
-
-
-	//************** Eje X *****************************************************************//
-		for (int jx=0;jx<mx;jx+=1){
-			real ax=xmin + (xmax-xmin)*jx/mx, bx=xmin + (xmax-xmin)*(jx+1)/mx;
-			for (int jjx=0;jjx<s1;jjx+=1){
-				real xx1=((bx-ax)*s[jjx]/2)+ (bx+ax)/2;
-				fx<<xx1<<endl;				// Save the values of x
-
-	//************** Eje Y ***********************************************************//
-				int k=0;
-				for (j=0;j<m;j+=1){
-					if (jjx==0 && jx==0){ 
-						a=Ly*j/m;
-						b=Ly*(j+1)/m; 	
-					}
-					for (int jj=0;jj<s1;jj+=1){
-
-//*********************************************************//
-
-						if (jjx==0 && jx==0){
-							yy[k]=((b-a)*s[jj]/2)+ (b+a)/2;   
-							fy<<yy[k]<<endl;   				// Save the values of y
-						}
-
-//*********************************************************//
-
-						fu2<<u2(xx1,yy[k])<<endl;              // Save the solution u_y(x, y) for the instant of time t1
-
-						fu1<<u1(xx1,yy[k])<<endl;              // Save the solution u_x (x, y) for the instant of time t1
-						k=k+1;
-					}
-				}
-			}
-		}
-	}
-
-
- 
+	fespace Wh(Th,P2);
+	Wh D;
+	D=sqrt(u1^2+u2^2);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-	if(abs(t-Tend)<=dt){
-		plot(Th,M,nbiso=30,value=1,fill=1,wait=1,cmm="Wave propagation in aluminum plate for the frequency of "+ f0+" Hz; time t="+t+". Type Enter key to continue.",aspectratio=1,bb=[[-1e-3,-2e-3],[6e-2,3e-3]],dim=2 );
-	}else{
-		plot(Th,M,nbiso=30,value=1,fill=1,wait=0,cmm="Wave propagation in aluminum plate for the frequency of "+ f0+" Hz; time t="+t,aspectratio=1,bb=[[-1e-3,-2e-3],[6e-2,3e-3]],dim=2 );
+	if(j==dim1-1){
+
+		plot(D,viso=viso(0:viso.n-1),value=1,fill=1,wait=1,hsv=colorhsv,cmm="Propagation of a pulsed wave along an aluminium plate, colors represent the magnitude of displacement. Type Enter key to continue.",aspectratio=0,bb=[[-1e-3,-2e-3],[6e-2,3e-3]],dim=2,ShowAxes=0 );
+	} else{
+		plot(D,viso=viso(0:viso.n-1),value=1,fill=1,wait=0,hsv=colorhsv,cmm="Propagation of a pulsed wave along an aluminium plate, colors represent the magnitude of displacement.",aspectratio=0,bb=[[-1e-3,-2e-3],[6e-2,3e-3]],dim=2,ShowAxes=0 );
 	}
-	
-	///// // change the initial values ////////////////////////////////////////////////////////////
-	uppp=upp;
-	upp=up;
-	up=u;
-	i++;
-	}
+		
 }
-plot([xx,uyp1],cmm="Graphic of the displacement in the vertical direction uy(t, P1) of the selected points P1 = (0.01, Ly) for f0 = " +f0+" Hz. Type Enter key to continue.",wait=true);
-plot([xx,uyp2],cmm="Graphic of the displacement in the vertical direction uy(t, P2) of the selected points P2 = (0.013, Ly) for f0 = " +f0+" Hz. Type Enter key to continue.",wait=true);
-plot([xx,uyp3],cmm="Graphic of the displacement in the vertical direction uy(t, P3) of the selected points P3 = (0.016, Ly) for f0 = " +f0+" Hz. Type Enter key to continue.",wait=true);
-plot([xx,uyp4],cmm="Graphic of the displacement in the vertical direction uy(t, P4) of the selected points P4 = (0.019, Ly) for f0 = " +f0+" Hz. Type Esc key tu exit.",wait=true);
+
+plot([xx,uyp1],[xx,uyp2],[xx,uyp3],[xx,uyp4],ShowAxes=true,cmm="Displacement in the vertical direction uy(t, Pi), i=1,2,3,4. Type Esc key to exit.",wait=true,aspectratio=0);
+
 cout << " CPU time = " << clock()-cpu << endl;
