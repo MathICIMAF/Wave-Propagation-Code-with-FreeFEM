@@ -1,20 +1,40 @@
-![](/images/Imagen3.jpg)
-
 # WavePropagation Code
 
-Companion repository to our paper:
+The WavePropagation Code is the FreeFem++ implementation of the numerical solution of the propagation of a pulse along a thin aluminum plate.The partial differential equations modelling the problem are solved discretizing first the temporal variable with a second order difference scheme.For each fixed value of time,this leads to partial differential equations depending only on the spatial variables,which are solved by means of FEM.
 
-**Title**: *Numerical solution of the wave propagation problem in a plate*
+The domain Ω of the problem is a finite 2D plate with boundary ∂Ω subdivided in 4 sections:δ1, δ2, δ3 and δ4. Boundaries δ1, δ2, δ3 are free. A pulse g(t) depending on time tand on an input frequency is applied on δ4,
 
-**Authors**: Manuel Cruz Rodriguez, Victoria Hernández Mederos, Jorge Estrada Sarlabous,  Eduardo Moreno Hernández, Ahmed Mansur Graverán
+![](/images/Imagen0.jpg)
 
-**Abstract**: In this work, the propagation of an ultrasonic pulse in a thin plate is computed solving the differential equations modeling this problem. To solve these equations finite differences are used to discretize the temporal variable, while spacial variables are discretized using Finite Element method. The variational formulation of the problem corresponding to a fixed value of time is obtained and the existence an uniqueness of the solution is proved. The proposed approach leads to a sequence of linear systems with the same sparse, symmetric and positive defined matrix. The free software FreeFem++ is used to compute the approximated solution using polynomial triangular elements. Numerical experiments show that velocities computed using the approximated displacements for different frequency values are in good correspondence with analytical dispersion curves for the phase velocity.
+![](/images/Imagen1.jpg)
+
+![](/images/Imagen2.jpg)
+
+## Requirements
+
+WavePropagationCode has been tested with FreeFem++ 3.56 and above and should run on most personal laptops and desktop computers.
+
+## Input
+![](/images/Imagen4.jpg)
+
+## Functionality
+
+	• Calculate the pulse displacement.
+	• Plot the wave propagation.
+	• Export the values of the vertical component of the pulse displacement at 4 fixed points on the top of the plate and plot the corresponding curves.
+## Graphical Output of WavePropagation Code
+
+Pulse displacement at 4 fixed points on the top of the plate.
+
+![](/images/Imagen5.jpg)
+
+Deformation of the plate for a fixed time after emitting a pulse on the boundary δ4.
+Colors correspond to the magnitude of the vertical displacement.
+
+![](/images/Imagen3.jpg)
+
+## Next version of the code
+Implementation of the Phase Velocity method to compute the phase velocity dispersion curve.
 
 
-## How to install FreeFem++?
-
-Please, see [here](https://doc.freefem.org/introduction/installation.html) the latest installation instructions for various platforms.
-
-## Disclaimer
-
-This code was tested with **FreeFem++-3.5**.
+![](/images/Imagen6.jpg)
